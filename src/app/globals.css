@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-emerald-500) 35%, transparent);
+}
+
+/* Keep scrollbars from punching light rectangles into the dark chrome. */
+* {
+  scrollbar-color: var(--color-zinc-700) transparent;
+  scrollbar-width: thin;
+}
+
+/*
+ * The highlight backdrop sits behind a textarea and must wrap text at exactly
+ * the same width. It therefore reserves a scrollbar gutter like the textarea
+ * does, but paints nothing in it.
+ */
+.scrollbar-ghost {
+  scrollbar-color: transparent transparent;
+}
+
+.scrollbar-ghost::-webkit-scrollbar,
+.scrollbar-ghost::-webkit-scrollbar-thumb {
+  background: transparent;
+}
