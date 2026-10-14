@@ -18,6 +18,9 @@ export function useLocalStorage<T>(
   const [value, setValue] = useState<T>(fallback);
   const [loaded, setLoaded] = useState(false);
   const loadedRef = useRef(false);
+  // The value the hook started with: as long as it is still the current one,
+  // nothing was ever set, and a first visit leaves storage untouched.
+  const initialRef = useRef(value);
   // Pinned on purpose: the stored value is read once, with the validator the
   // hook was first given.
   const deserializeRef = useRef(deserialize);
@@ -36,7 +39,7 @@ export function useLocalStorage<T>(
   useEffect(() => {
     // Never write before the initial read, or the fallback would wipe the
     // user's saved data on the very first render.
-    if (!loadedRef.current) return;
+    if (!loadedRef.current || value === initialRef.current) return;
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
     } catch {
