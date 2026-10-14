@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { Rule, Template } from "@/lib/types";
-import { ArrowRightIcon, TrashIcon } from "./icons";
+import { BUTTON, BUTTON_DANGER, FIELD, LABEL } from "./ui";
 
 type Props = {
   rules: Rule[];
@@ -15,13 +15,14 @@ type Props = {
   onSaveTemplate: () => void;
   onTemplateNameChange: (name: string) => void;
   onRuleChange: (id: string, patch: Partial<Rule>) => void;
-  onAddRule: () => void;
+  /** Returns the new rule's id so it can be focused once rendered. */
+  onAddRule: () => string;
   onRemoveRule: (id: string) => void;
   onClearRules: () => void;
 };
 
-const inputClass =
-  "min-w-0 flex-1 rounded-md border border-zinc-700/70 bg-zinc-950/60 px-2.5 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/70 focus:outline-none focus:ring-1 focus:ring-emerald-500/40";
+const ICON_BUTTON =
+  "h-7 w-7 shrink-0 border text-xs font-medium focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ink";
 
 export default function RulesPanel({
   rules,
@@ -38,6 +39,9 @@ export default function RulesPanel({
   onRemoveRule,
   onClearRules,
 }: Props) {
+  const listRef = useRef<HTMLUListElement>(null);
+  // The rule to focus once it shows up in the list.
+  const focusRef = useRef<{ id: string; field: "find" | "replace" } | null>(null);
   const trimmedName = templateName.trim();
   const overwrites = useMemo(
     () =>
@@ -48,16 +52,37 @@ export default function RulesPanel({
   );
   const activeRules = rules.filter((rule) => rule.find.length > 0).length;
 
+  function focusInput(target: { id: string; field: "find" | "replace" }) {
+    const input = listRef.current?.querySelector<HTMLInputElement>(
+      // Ids loaded from storage may hold any character.
+      `[data-rule="${CSS.escape(target.id)}"][data-field="${target.field}"]`,
+    );
+    if (!input) return false;
+    input.focus();
+    input.scrollIntoView({ block: "nearest" });
+    return true;
+  }
+
+  useEffect(() => {
+    if (focusRef.current && focusInput(focusRef.current)) focusRef.current = null;
+  }, [rules]);
+
+  function focusRule(id: string, field: "find" | "replace") {
+    if (!focusInput({ id, field })) focusRef.current = { id, field };
+  }
+
+  function handleAdd() {
+    focusRef.current = { id: onAddRule(), field: "find" };
+  }
+
   return (
-    <aside className="flex w-full shrink-0 flex-col border-zinc-800 bg-zinc-900/40 lg:w-[30%] lg:min-w-[320px] lg:max-w-[440px] lg:border-r">
-      <section className="border-b border-zinc-800 p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Templates
-        </h2>
-        <div className="mt-2.5 flex gap-1.5">
+    <aside className="flex w-full shrink-0 flex-col border-rule bg-panel max-lg:border-b lg:w-[min(34vw,420px)] lg:min-w-[340px] lg:border-r">
+      <section className="border-b border-hairline px-4 py-3">
+        <h2 className={LABEL}>Templates</h2>
+        <div className="mt-2 flex gap-1">
           <select
             aria-label="Load a template"
-            className={`${inputClass} cursor-pointer`}
+            className={`${FIELD} cursor-pointer`}
             value={selectedTemplateId}
             onChange={(event) => onSelectTemplate(event.target.value)}
           >
@@ -75,16 +100,16 @@ export default function RulesPanel({
             onClick={onDeleteTemplate}
             disabled={!selectedTemplateId}
             title="Delete the selected template"
-            className="rounded-md border border-zinc-700/70 px-2 text-zinc-400 transition hover:border-red-500/60 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-zinc-700/70 disabled:hover:text-zinc-400"
+            className={BUTTON_DANGER}
           >
-            <TrashIcon className="size-4" />
-            <span className="sr-only">Delete template</span>
+            Delete
           </button>
         </div>
-        <div className="mt-1.5 flex gap-1.5">
+        <div className="mt-1 flex gap-1">
           <input
-            className={inputClass}
+            className={FIELD}
             placeholder="Template name (e.g. HR data)"
+            aria-label="Template name"
             value={templateName}
             onChange={(event) => onTemplateNameChange(event.target.value)}
             onKeyDown={(event) => {
@@ -95,7 +120,7 @@ export default function RulesPanel({
             type="button"
             onClick={onSaveTemplate}
             disabled={!trimmedName}
-            className="shrink-0 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-emerald-500/10"
+            className={BUTTON}
           >
             {overwrites ? "Update" : "Save"}
           </button>
@@ -103,10 +128,10 @@ export default function RulesPanel({
       </section>
 
       <section className="flex min-h-0 flex-1 flex-col">
-        <div className="flex items-center justify-between px-4 pb-2 pt-4">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <div className="flex items-center gap-2 border-b border-hairline px-4 py-2">
+          <h2 className={LABEL}>
             Rules{" "}
-            <span className="font-normal normal-case tracking-normal text-zinc-600">
+            <span className="normal-case tracking-normal text-faint">
               · {activeRules} active
             </span>
           </h2>
@@ -114,30 +139,54 @@ export default function RulesPanel({
             type="button"
             onClick={onClearRules}
             disabled={rules.length === 0}
-            className="text-xs text-zinc-500 transition hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-zinc-500"
+            className={`${BUTTON_DANGER} ml-auto`}
           >
             Clear all
           </button>
+          <button
+            id="add-rule"
+            type="button"
+            onClick={handleAdd}
+            title="Add a rule (Enter in the last replacement does the same)"
+            className={BUTTON}
+          >
+            + Add rule
+          </button>
         </div>
 
-        <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-4 pb-2 lg:max-h-none">
-          {rules.map((rule) => {
+        {/* Bounded on narrow screens too, so a long list never pushes the text away. */}
+        <ul
+          ref={listRef}
+          className="relative max-h-[45dvh] min-h-0 flex-1 overflow-y-auto lg:max-h-none"
+        >
+          {rules.map((rule, index) => {
             const hits = counts[rule.id] ?? 0;
+            const next = rules[index + 1];
             return (
               <li
                 key={rule.id}
-                className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-2"
+                className="border-b border-hairline px-4 py-2"
               >
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
+                  <span className="w-6 shrink-0 font-mono text-[11px] tabular-nums text-faint">
+                    {index + 1}
+                  </span>
                   <input
-                    className={inputClass}
+                    className={FIELD}
                     placeholder="Text to find"
                     aria-label="Text to find"
                     spellCheck={false}
+                    data-rule={rule.id}
+                    data-field="find"
                     value={rule.find}
                     onChange={(event) =>
                       onRuleChange(rule.id, { find: event.target.value })
                     }
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      focusRule(rule.id, "replace");
+                    }}
                   />
                   <button
                     type="button"
@@ -150,10 +199,10 @@ export default function RulesPanel({
                     onClick={() =>
                       onRuleChange(rule.id, { caseSensitive: !rule.caseSensitive })
                     }
-                    className={`h-8 w-8 shrink-0 rounded-md border text-xs font-semibold transition ${
+                    className={`${ICON_BUTTON} ${
                       rule.caseSensitive
-                        ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
-                        : "border-zinc-700/70 text-zinc-500 hover:text-zinc-300"
+                        ? "border-ink bg-ink text-paper"
+                        : "border-hairline bg-field text-faint hover:border-ink hover:text-ink"
                     }`}
                   >
                     Aa
@@ -163,27 +212,40 @@ export default function RulesPanel({
                     type="button"
                     onClick={() => onRemoveRule(rule.id)}
                     title="Delete rule"
-                    className="h-8 w-8 shrink-0 rounded-md border border-zinc-700/70 p-1.5 text-zinc-500 transition hover:border-red-500/60 hover:text-red-400"
+                    aria-label="Delete rule"
+                    className={`${ICON_BUTTON} border-hairline bg-field text-base leading-none text-faint hover:border-cut hover:bg-cut hover:text-paper`}
                   >
-                    <TrashIcon className="size-full" />
-                    <span className="sr-only">Delete rule</span>
+                    ×
                   </button>
                 </div>
-                <div className="mt-1.5 flex items-center gap-1.5">
-                  <ArrowRightIcon className="size-4 shrink-0 text-zinc-600" />
+                <div className="mt-1 flex items-center gap-1">
+                  <span
+                    aria-hidden
+                    className="w-6 shrink-0 font-mono text-xs text-faint"
+                  >
+                    →
+                  </span>
                   <input
-                    className={inputClass}
+                    className={FIELD}
                     placeholder="Replacement (empty deletes the match)"
                     aria-label="Replacement text"
                     spellCheck={false}
+                    data-rule={rule.id}
+                    data-field="replace"
                     value={rule.replace}
                     onChange={(event) =>
                       onRuleChange(rule.id, { replace: event.target.value })
                     }
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      if (next) focusRule(next.id, "find");
+                      else handleAdd();
+                    }}
                   />
                   <span
-                    className={`w-9 shrink-0 text-right text-xs tabular-nums ${
-                      hits > 0 ? "text-emerald-400" : "text-zinc-700"
+                    className={`w-[3.75rem] shrink-0 text-right font-mono text-xs tabular-nums ${
+                      hits > 0 ? "text-ink" : "text-faint"
                     }`}
                     title={`${hits} occurrence${hits === 1 ? "" : "s"} replaced`}
                   >
@@ -194,21 +256,11 @@ export default function RulesPanel({
             );
           })}
           {rules.length === 0 && (
-            <li className="rounded-lg border border-dashed border-zinc-800 px-3 py-6 text-center text-sm text-zinc-600">
+            <li className="px-4 py-6 text-center text-sm text-muted">
               No rules yet. Add one, or load a template.
             </li>
           )}
         </ul>
-
-        <div className="border-t border-zinc-800 p-4">
-          <button
-            type="button"
-            onClick={onAddRule}
-            className="w-full rounded-md border border-zinc-700/70 py-2 text-sm font-medium text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800/60"
-          >
-            Add a rule
-          </button>
-        </div>
       </section>
     </aside>
   );

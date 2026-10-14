@@ -25,6 +25,9 @@ This is the whole point of the tool, so it is worth being precise about it.
   nothing is persisted until you ask for it by name.
 - **No third-party requests.** Fonts are self-hosted by `next/font`. The page
   loads no analytics, no CDN, no tracker.
+- **The browser enforces it.** The built page carries a Content Security Policy
+  with `connect-src 'none'` and `form-action 'none'` (also sent as a header by
+  [vercel.json](vercel.json)): even a bug could not open a connection.
 
 ### Check it yourself
 
@@ -32,24 +35,30 @@ Don't take the list above on faith:
 
 - Open your browser's **Network** tab, paste something, hit Apply. Nothing new
   is requested.
-- Open **Application → Local Storage**. Either it is empty, or it holds exactly
-  one key of templates you saved.
+- Open **Application → Local Storage**. It stays empty until you save a
+  template, then holds exactly one key: your templates.
 - Turn off your Wi-Fi and reload. The app keeps working.
-- Read [src/app/page.tsx](src/app/page.tsx) — the whole state of the app is about
-  150 lines.
+- Read [src/app/page.tsx](src/app/page.tsx) — the whole state of the app is under
+  200 lines.
 
 ## What it does
 
 - **Rules**: pairs of "text to find" → "replacement". An empty replacement
   deletes the match. Each rule has its own `Aa` toggle for case sensitivity and
-  shows how many occurrences it hit.
+  shows how many occurrences it hit. "+ Add rule" sits at the top of the list
+  and focuses the new rule; `Enter` moves from "find" to "replacement", and from
+  the last replacement adds the next rule.
 - **Templates**: save the current rule list under a name ("HR data", "Network
   config") and load it back in one click.
-- **Apply**: the main button, or `Ctrl`/`Cmd` + `Enter`. Tick "Live preview" to
-  recompute on every keystroke instead.
-- **Highlighting**: matches are shown in amber in the original text, their
-  replacements in green in the result, and a rose bar marks where something was
-  deleted. Hover a highlight to see which rule caused it.
+- **Apply**: the main button, or `Ctrl`/`Cmd` + `Enter`. Switch "Live preview"
+  on to recompute on every keystroke instead.
+- **Highlighting**: matches are marked in yellow in the original text, their
+  replacements are shown as inverted blocks in the result, and a red bar marks
+  where something was deleted. Hover a highlight to see which rule caused it.
+- **Layout**: on a wide screen the app is exactly one window tall. The rule
+  list and both texts scroll inside their own panels, so Apply and "Add rule"
+  never move, however long the text or the list. Long unbroken strings (URLs,
+  hashes, base64) wrap instead of widening the page.
 - **Copy**: one button puts the result on your clipboard.
 
 ## Run it
@@ -57,9 +66,21 @@ Don't take the list above on faith:
 ```bash
 npm install
 npm run dev      # http://localhost:3000
-npm test         # replacement engine tests (node:test)
+npm test         # unit tests (node:test)
 npm run build    # static export into out/
+npm run smoke    # browser regression test against out/ (needs Chromium)
 ```
+
+`npm run smoke` drives headless Chromium over the DevTools protocol, with no
+extra dependency. It pastes a 160 kB text with a 5,000-character unbroken token
+and 80 rules, then fails on any request leaving the page, any page error, any
+text reaching `localStorage`, any horizontal scrolling (at 1440 and 390 px),
+a highlight layer out of step with the text, or Apply / "Add rule" pushed off
+screen. Screenshots land in `.smoke/`. Set `CHROME` to pick the browser binary.
+
+CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs the type check,
+unit tests, lint, build and this browser test on every push and pull request,
+and keeps the screenshots when it fails.
 
 ## How the replacement engine works
 
@@ -84,19 +105,35 @@ For Vercel: push the repo, then "Add New… → Project" and import it. Next.js 
 detected automatically and `output: "export"` is honoured. There is nothing to
 configure — no environment variables, no external services.
 
-For anything else, `npm run build` and serve `out/`.
+For anything else, `npm run build` and serve `out/`, ideally with the headers
+from [vercel.json](vercel.json).
+
+## Legal notice
+
+The page *Mentions légales et confidentialité* (`/mentions-legales`, linked from
+every page's footer) gives the publisher and host as French law requires, the
+privacy notice, and the tool's limits: Innomi only replaces what your rules
+name, so its output is not anonymised in the GDPR sense until a human has read
+it. If you deploy your own copy, edit
+[src/app/mentions-legales/page.tsx](src/app/mentions-legales/page.tsx) with your
+own details.
 
 ## Project layout
 
 ```
 src/
-  app/page.tsx              app state (rules, templates, text)
-  components/RulesPanel.tsx left column: templates + rules
-  components/WorkArea.tsx   original → Apply → anonymized
-  components/Highlight.tsx  renders the highlighted segments
-  hooks/useLocalStorage.ts  template persistence, safe for static export
-  lib/anonymize.ts          single-pass replacement engine
-  lib/types.ts              Rule / Template types + localStorage validation
+  app/page.tsx                    app state (rules, templates, text)
+  app/mentions-legales/page.tsx   legal notice and privacy policy
+  components/RulesPanel.tsx       left column: templates + rules
+  components/WorkArea.tsx         action bar, original and anonymized side by side
+  components/Highlight.tsx        renders the highlighted segments
+  components/Footer.tsx           disclaimer, legal and source links
+  components/ui.ts                shared class lists (colours come from globals.css)
+  hooks/useLocalStorage.ts        template persistence, safe for static export
+  lib/anonymize.ts                single-pass replacement engine
+  lib/csp.ts                      the page's Content Security Policy
+  lib/types.ts                    Rule / Template types + localStorage validation
+scripts/smoke.mjs                 browser regression test
 ```
 
 Built with Next.js, React and Tailwind CSS.
@@ -111,5 +148,6 @@ deploy a modified version as a hosted service, you have to publish your changes
 under the same license. That is deliberate — it is what keeps the privacy claims
 above checkable on *any* Innomi someone puts in front of you, not just this one.
 
-If you host it, set `SOURCE_URL` in [src/app/page.tsx](src/app/page.tsx) to your
-repository. The page then links to its own source, as section 13 requires.
+If you host a modified copy, set `SOURCE_URL` in
+[src/components/Footer.tsx](src/components/Footer.tsx) to your repository. Every
+page links to its own source, as section 13 requires.

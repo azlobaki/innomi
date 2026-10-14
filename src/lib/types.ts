@@ -1,3 +1,6 @@
+/** The only key Innomi ever writes. It holds templates — never any text. */
+export const STORAGE_KEY = "innomi.templates.v1";
+
 /** A single find → replace directive. An empty `replace` deletes the match. */
 export type Rule = {
   id: string;
