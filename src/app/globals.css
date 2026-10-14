@@ -1,21 +1,84 @@
 @import "tailwindcss";
 
+/*
+ * Components only use the tokens below. Tailwind's stock palette, radii and
+ * shadows are removed so nothing can quietly bring back rounded, glowing,
+ * translucent chrome: every edge is square and every surface is a flat colour.
+ */
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --font-*: initial;
+}
+
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--in-paper);
+  --color-panel: var(--in-panel);
+  --color-field: var(--in-field);
+  --color-ink: var(--in-ink);
+  --color-muted: var(--in-muted);
+  --color-faint: var(--in-faint);
+  --color-rule: var(--in-rule);
+  --color-hairline: var(--in-hairline);
+  /* A match in the original text: a highlighter stroke under the words. */
+  --color-mark: var(--in-mark);
+  /* What replaced it in the result: inverted, like a redaction bar. */
+  --color-redact: var(--in-redact);
+  --color-on-redact: var(--in-on-redact);
+  /* A deletion, and destructive actions. */
+  --color-cut: var(--in-cut);
+  --font-sans: var(--in-font-sans);
+  --font-mono: var(--in-font-mono);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --in-paper: #f5f4ef;
+  --in-panel: #ebe9e2;
+  --in-field: #ffffff;
+  --in-ink: #151515;
+  --in-muted: #5f5d57;
+  --in-faint: #9a978e;
+  --in-rule: #151515;
+  --in-hairline: #d3d0c6;
+  --in-mark: #ffe04a;
+  --in-redact: #151515;
+  --in-on-redact: #f5f4ef;
+  --in-cut: #c62a1c;
+  --in-font-sans: var(--font-plex-sans), "Helvetica Neue", Arial, sans-serif;
+  --in-font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --in-paper: #111110;
+    --in-panel: #1a1a18;
+    --in-field: #0b0b0a;
+    --in-ink: #e9e7df;
+    --in-muted: #a19e94;
+    --in-faint: #6b6961;
+    --in-rule: #e9e7df;
+    --in-hairline: #2e2e2a;
+    /* The original text is drawn over the mark, so it stays a tint here. */
+    --in-mark: #6b5a00;
+    --in-redact: #e9e7df;
+    --in-on-redact: #111110;
+    --in-cut: #ff6a55;
+  }
 }
 
 ::selection {
-  background-color: color-mix(in oklab, var(--color-emerald-500) 35%, transparent);
+  background-color: var(--in-ink);
+  color: var(--in-paper);
 }
 
-/* Keep scrollbars from punching light rectangles into the dark chrome. */
 * {
-  scrollbar-color: var(--color-zinc-700) transparent;
+  scrollbar-color: var(--in-hairline) transparent;
   scrollbar-width: thin;
 }
 

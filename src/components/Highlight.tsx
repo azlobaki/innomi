@@ -7,9 +7,13 @@ import type { Rule } from "@/lib/types";
  */
 export const MAX_PIECES = 4000;
 
-/** Shared by the textarea and its highlight backdrop — they must wrap identically. */
+/**
+ * Shared by the textarea and its highlight backdrop — they must wrap
+ * identically. `overflow-wrap: anywhere` lets an unbroken run (a URL, a hash,
+ * base64) wrap instead of widening the page.
+ */
 export const TEXT_LAYER_CLASS =
-  "overflow-y-scroll whitespace-pre-wrap break-words p-3 font-mono text-sm leading-relaxed";
+  "overflow-x-hidden overflow-y-scroll whitespace-pre-wrap [overflow-wrap:anywhere] p-3 font-mono text-sm leading-relaxed";
 
 function describe(rule: Rule | undefined): string | undefined {
   if (!rule) return undefined;
@@ -36,7 +40,7 @@ export default function Highlight({ pieces, variant, rulesById }: Props) {
             <span
               key={index}
               title={title}
-              className="mx-px inline-block h-[1.1em] w-0.5 translate-y-[0.2em] rounded-full bg-rose-400/80"
+              className="mx-px inline-block h-[1.1em] w-0.5 translate-y-[0.2em] bg-cut"
             />
           );
         }
@@ -46,8 +50,8 @@ export default function Highlight({ pieces, variant, rulesById }: Props) {
             title={title}
             className={
               variant === "source"
-                ? "rounded-[3px] bg-amber-400/25 text-transparent"
-                : "rounded-[3px] bg-emerald-500/20 text-emerald-200"
+                ? "bg-mark text-transparent"
+                : "bg-redact text-on-redact"
             }
           >
             {piece.text}
