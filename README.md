@@ -19,10 +19,12 @@ This is the whole point of the tool, so it is worth being precise about it.
   Your input and the anonymized result live in React state and nowhere else —
   not in `localStorage`, not in a cookie, not in the URL. Reloading the page
   wipes both.
-- **Only templates are stored.** The single key ever written is
-  `innomi.templates.v1`, and it only holds rules you explicitly saved. That
-  restraint is deliberate: a rule's "text to find" *is* the sensitive value, so
-  nothing is persisted until you ask for it by name.
+- **Only templates and the language are stored.** At most two keys are ever
+  written: `innomi.templates.v1`, which holds rules you explicitly saved, and
+  `innomi.settings.v1`, which holds the interface language and is written only
+  if you picked one with the FR | EN switch; never any text. That restraint is
+  deliberate: a rule's "text to find" *is* the sensitive value, so nothing is
+  persisted until you ask for it by name.
 - **No third-party requests.** Fonts are self-hosted by `next/font`. The page
   loads no analytics, no CDN, no tracker.
 - **The browser enforces it.** The built page carries a Content Security Policy
@@ -36,10 +38,10 @@ Don't take the list above on faith:
 - Open your browser's **Network** tab, paste something, hit Apply. Nothing new
   is requested.
 - Open **Application → Local Storage**. It stays empty until you save a
-  template, then holds exactly one key: your templates.
+  template or use the FR | EN switch, then holds at most those two keys.
 - Turn off your Wi-Fi and reload. The app keeps working.
 - Read [src/app/page.tsx](src/app/page.tsx) — the whole state of the app is under
-  200 lines.
+  about 200 lines.
 
 ## What it does
 
@@ -60,6 +62,8 @@ Don't take the list above on faith:
   never move, however long the text or the list. Long unbroken strings (URLs,
   hashes, base64) wrap instead of widening the page.
 - **Copy**: one button puts the result on your clipboard.
+- **Languages**: French or English: the browser's language on the first visit,
+  then the FR | EN switch in the header.
 
 ## Run it
 
@@ -114,7 +118,9 @@ The page *Mentions légales et confidentialité* (`/mentions-legales`, linked fr
 every page's footer) gives the publisher and host as French law requires, the
 privacy notice, and the tool's limits: Innomi only replaces what your rules
 name, so its output is not anonymised in the GDPR sense until a human has read
-it. If you deploy your own copy, edit
+it. The page also has an English translation, shown when the interface is in
+English (the footer link then reads "Legal notice"); the French text is the
+legally binding one. If you deploy your own copy, edit
 [src/app/mentions-legales/page.tsx](src/app/mentions-legales/page.tsx) with your
 own details.
 
@@ -130,6 +136,9 @@ src/
   components/Footer.tsx           disclaimer, legal and source links
   components/ui.ts                shared class lists (colours come from globals.css)
   hooks/useLocalStorage.ts        template persistence, safe for static export
+  i18n/                           dictionaries, locale context
+  lib/i18n/                       language detection and helpers
+  lib/settings.ts                 the saved interface language
   lib/anonymize.ts                single-pass replacement engine
   lib/csp.ts                      the page's Content Security Policy
   lib/types.ts                    Rule / Template types + localStorage validation

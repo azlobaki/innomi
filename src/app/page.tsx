@@ -2,10 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Footer from "@/components/Footer";
+import LocaleSwitch from "@/components/LocaleSwitch";
 import RulesPanel from "@/components/RulesPanel";
 import { HEADER, LABEL, WORDMARK } from "@/components/ui";
 import WorkArea from "@/components/WorkArea";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useSettings } from "@/hooks/useSettings";
+import { LocaleProvider } from "@/i18n/LocaleContext";
+import { messages } from "@/i18n/messages";
 import { EMPTY_RESULT, anonymize, type AnonymizeResult } from "@/lib/anonymize";
 import { STORAGE_KEY, emptyRule, newId, parseTemplates } from "@/lib/types";
 import type { Rule, Template } from "@/lib/types";
@@ -13,6 +17,9 @@ import type { Rule, Template } from "@/lib/types";
 type Applied = { result: AnonymizeResult; input: string; rules: Rule[] };
 
 export default function Home() {
+  const { locale, setLocale } = useSettings();
+  // This component owns the provider, so it reads its own strings directly.
+  const t = messages[locale].page;
   const [templates, setTemplates] = useLocalStorage<Template[]>(
     STORAGE_KEY,
     [],
@@ -95,7 +102,7 @@ export default function Home() {
     );
     if (
       existing &&
-      !window.confirm(`Replace the template “${existing.name}”?`)
+      !window.confirm(t.confirmReplace(existing.name))
     ) {
       return;
     }
@@ -116,7 +123,7 @@ export default function Home() {
   function handleDeleteTemplate() {
     const template = templates.find((item) => item.id === selectedTemplateId);
     if (!template) return;
-    if (!window.confirm(`Delete the template “${template.name}”?`)) return;
+    if (!window.confirm(t.confirmDelete(template.name))) return;
     setTemplates((previous) => previous.filter((item) => item.id !== template.id));
     setSelectedTemplateId("");
   }
@@ -135,57 +142,63 @@ export default function Home() {
 
   function handleClearRules() {
     const hasContent = rules.some((rule) => rule.find || rule.replace);
-    if (hasContent && !window.confirm("Clear all current rules?")) return;
+    if (hasContent && !window.confirm(t.confirmClear)) return;
     setRules([emptyRule()]);
     setSelectedTemplateId("");
   }
 
   return (
-    // On wide screens the app is exactly one window tall: the rules and both
-    // texts scroll inside their own panels, so the controls never move away.
-    <div className="flex min-h-dvh flex-col lg:h-dvh lg:min-h-0">
-      <header className={HEADER}>
-        <h1 className={WORDMARK}>Innomi</h1>
-        <p className="text-sm text-muted">Template-based text anonymization</p>
-        <p className={`${LABEL} sm:ml-auto`}>
-          Local only · no text is sent anywhere or stored
-        </p>
-      </header>
+    <LocaleProvider locale={locale}>
+      <title>{t.title}</title>
+      <div data-localised className="contents">
+        {/* On wide screens the app is exactly one window tall: the rules and both
+            texts scroll inside their own panels, so the controls never move away. */}
+        <div className="flex min-h-dvh flex-col lg:h-dvh lg:min-h-0">
+          <header className={HEADER}>
+            <h1 className={WORDMARK}>Innomi</h1>
+            <p className="text-sm text-muted">{t.tagline}</p>
+            <p className={`${LABEL} sm:ml-auto`}>
+              {t.claim}
+            </p>
+            <LocaleSwitch locale={locale} onChange={setLocale} />
+          </header>
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <RulesPanel
-          rules={rules}
-          counts={result.counts}
-          templates={sortedTemplates}
-          selectedTemplateId={selectedTemplateId}
-          templateName={templateName}
-          onSelectTemplate={handleSelectTemplate}
-          onDeleteTemplate={handleDeleteTemplate}
-          onSaveTemplate={handleSaveTemplate}
-          onTemplateNameChange={setTemplateName}
-          onRuleChange={handleRuleChange}
-          onAddRule={handleAddRule}
-          onRemoveRule={(id) =>
-            setRules((previous) => previous.filter((rule) => rule.id !== id))
-          }
-          onClearRules={handleClearRules}
-        />
-        <WorkArea
-          input={input}
-          output={result.output}
-          sourcePieces={sourcePieces}
-          outputPieces={result.outputPieces}
-          rulesById={rulesById}
-          total={result.total}
-          live={live}
-          stale={stale}
-          onInputChange={setInput}
-          onLiveChange={handleLiveChange}
-          onApply={handleApply}
-        />
+          <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+            <RulesPanel
+              rules={rules}
+              counts={result.counts}
+              templates={sortedTemplates}
+              selectedTemplateId={selectedTemplateId}
+              templateName={templateName}
+              onSelectTemplate={handleSelectTemplate}
+              onDeleteTemplate={handleDeleteTemplate}
+              onSaveTemplate={handleSaveTemplate}
+              onTemplateNameChange={setTemplateName}
+              onRuleChange={handleRuleChange}
+              onAddRule={handleAddRule}
+              onRemoveRule={(id) =>
+                setRules((previous) => previous.filter((rule) => rule.id !== id))
+              }
+              onClearRules={handleClearRules}
+            />
+            <WorkArea
+              input={input}
+              output={result.output}
+              sourcePieces={sourcePieces}
+              outputPieces={result.outputPieces}
+              rulesById={rulesById}
+              total={result.total}
+              live={live}
+              stale={stale}
+              onInputChange={setInput}
+              onLiveChange={handleLiveChange}
+              onApply={handleApply}
+            />
+          </div>
+
+          <Footer />
+        </div>
       </div>
-
-      <Footer />
-    </div>
+    </LocaleProvider>
   );
 }

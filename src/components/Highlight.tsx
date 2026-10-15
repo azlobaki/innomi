@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/i18n/LocaleContext";
 import type { Piece } from "@/lib/anonymize";
 import type { Rule } from "@/lib/types";
 
@@ -15,11 +18,15 @@ export const MAX_PIECES = 4000;
 export const TEXT_LAYER_CLASS =
   "overflow-x-hidden overflow-y-scroll whitespace-pre-wrap [overflow-wrap:anywhere] p-3 font-mono text-sm leading-relaxed";
 
-function describe(rule: Rule | undefined): string | undefined {
+function describe(
+  rule: Rule | undefined,
+  deleted: string,
+  quote: (s: string) => string,
+): string | undefined {
   if (!rule) return undefined;
   return rule.replace
-    ? `“${rule.find}” → “${rule.replace}”`
-    : `“${rule.find}” → deleted`;
+    ? `${quote(rule.find)} → ${quote(rule.replace)}`
+    : `${quote(rule.find)} → ${deleted}`;
 }
 
 type Props = {
@@ -29,11 +36,12 @@ type Props = {
 };
 
 export default function Highlight({ pieces, variant, rulesById }: Props) {
+  const { deleted, quote } = useT().highlight;
   return (
     <>
       {pieces.map((piece, index) => {
         if (piece.ruleId === null) return piece.text;
-        const title = describe(rulesById[piece.ruleId]);
+        const title = describe(rulesById[piece.ruleId], deleted, quote);
         // A deletion has no text of its own; show where the cut happened.
         if (piece.text.length === 0) {
           return (

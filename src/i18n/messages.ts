@@ -1,0 +1,153 @@
+import type { Locale } from "@/lib/i18n/text";
+
+const en = {
+  header: {
+    language: "Language",
+  },
+  page: {
+    title: "Innomi — text anonymizer",
+    tagline: "Template-based text anonymization",
+    claim: "Local only · no text is sent anywhere or stored",
+    confirmReplace: (name: string) => `Replace the template “${name}”?`,
+    confirmDelete: (name: string) => `Delete the template “${name}”?`,
+    confirmClear: "Clear all current rules?",
+  },
+  templates: {
+    heading: "Templates",
+    load: "Load a template",
+    loadPlaceholder: "Load a template…",
+    none: "No saved templates",
+    delete: "Delete",
+    deleteTitle: "Delete the selected template",
+    namePlaceholder: "Template name (e.g. HR data)",
+    nameLabel: "Template name",
+    save: "Save",
+    update: "Update",
+  },
+  rules: {
+    heading: "Rules",
+    active: (n: number) => `· ${n} active`,
+    clearAll: "Clear all",
+    add: "+ Add rule",
+    addTitle: "Add a rule (Enter in the last replacement does the same)",
+    find: "Text to find",
+    replacePlaceholder: "Replacement (empty deletes the match)",
+    replaceLabel: "Replacement text",
+    caseOn: "Case-sensitive — click to ignore case",
+    caseOff: "Case-insensitive — click to match case",
+    matchCase: "Match case",
+    delete: "Delete rule",
+    occurrences: (n: number) => `${n} occurrence${n === 1 ? "" : "s"} replaced`,
+    empty: "No rules yet. Add one, or load a template.",
+  },
+  work: {
+    apply: "Apply",
+    applyLive: "Live preview is on",
+    applyHint: "Ctrl / Cmd + Enter",
+    live: (on: boolean) => `Live preview: ${on ? "on" : "off"}`,
+    statusLive: "Live preview: recomputed on every keystroke",
+    statusStale: "Pending changes — apply to update the result",
+    replacements: (n: number) => `${n} replacement${n === 1 ? "" : "s"}`,
+    original: "Original text",
+    chars: (n: number) => `${n.toLocaleString("en-US")} chars`,
+    paste: "Paste",
+    clear: "Clear",
+    inputPlaceholder: "Paste the text to anonymize here…",
+    anonymized: "Anonymized text",
+    highlightingOff: "highlighting off (text too large)",
+    copy: "Copy",
+    copied: "Copied",
+    outputPlaceholder: "The anonymized text will appear here.",
+  },
+  highlight: {
+    deleted: "deleted",
+    quote: (s: string) => `“${s}”`,
+  },
+  footer: {
+    disclaimer:
+      "Innomi only replaces what your rules name. It finds nothing on its own: read the result before you share it.",
+    legal: "Legal notice",
+    source: "Source",
+  },
+  legal: {
+    title: "Legal notice and privacy — Innomi",
+  },
+};
+
+export type Messages = typeof en;
+
+const fr: Messages = {
+  header: {
+    language: "Langue",
+  },
+  page: {
+    title: "Innomi — anonymiseur de texte",
+    tagline: "Anonymisation de texte par modèles",
+    claim: "Local uniquement · aucun texte n’est envoyé ni conservé",
+    confirmReplace: (name: string) => `Remplacer le modèle «\u00a0${name}\u00a0»\u00a0?`,
+    confirmDelete: (name: string) => `Supprimer le modèle «\u00a0${name}\u00a0»\u00a0?`,
+    confirmClear: "Effacer toutes les règles actuelles\u00a0?",
+  },
+  templates: {
+    heading: "Modèles",
+    load: "Charger un modèle",
+    loadPlaceholder: "Charger un modèle…",
+    none: "Aucun modèle enregistré",
+    delete: "Supprimer",
+    deleteTitle: "Supprimer le modèle sélectionné",
+    namePlaceholder: "Nom du modèle (p. ex. données RH)",
+    nameLabel: "Nom du modèle",
+    save: "Enregistrer",
+    update: "Mettre à jour",
+  },
+  rules: {
+    heading: "Règles",
+    active: (n: number) => `· ${n} active${n > 1 ? "s" : ""}`,
+    clearAll: "Tout effacer",
+    add: "+ Ajouter une règle",
+    addTitle: "Ajouter une règle (Entrée dans le dernier remplacement fait de même)",
+    find: "Texte à rechercher",
+    replacePlaceholder: "Remplacement (vide = suppression)",
+    replaceLabel: "Texte de remplacement",
+    caseOn: "Respecte la casse — cliquer pour l’ignorer",
+    caseOff: "Ignore la casse — cliquer pour la respecter",
+    matchCase: "Respecter la casse",
+    delete: "Supprimer la règle",
+    occurrences: (n: number) => `${n} occurrence${n > 1 ? "s" : ""} remplacée${n > 1 ? "s" : ""}`,
+    empty: "Aucune règle pour l’instant. Ajoutez-en une, ou chargez un modèle.",
+  },
+  work: {
+    apply: "Appliquer",
+    applyLive: "L’aperçu en direct est activé",
+    applyHint: "Ctrl / Cmd + Entrée",
+    live: (on: boolean) => `Aperçu en direct\u00a0: ${on ? "activé" : "désactivé"}`,
+    statusLive: "Aperçu en direct\u00a0: recalculé à chaque frappe",
+    statusStale: "Modifications en attente — appliquez pour mettre à jour le résultat",
+    replacements: (n: number) => `${n} remplacement${n > 1 ? "s" : ""}`,
+    original: "Texte d’origine",
+    chars: (n: number) => `${n.toLocaleString("fr-FR")} caractère${n > 1 ? "s" : ""}`,
+    paste: "Coller",
+    clear: "Effacer",
+    inputPlaceholder: "Collez ici le texte à anonymiser…",
+    anonymized: "Texte anonymisé",
+    highlightingOff: "surlignage désactivé (texte trop volumineux)",
+    copy: "Copier",
+    copied: "Copié",
+    outputPlaceholder: "Le texte anonymisé apparaîtra ici.",
+  },
+  highlight: {
+    deleted: "supprimé",
+    quote: (s: string) => `«\u00a0${s}\u00a0»`,
+  },
+  footer: {
+    disclaimer:
+      "Innomi remplace uniquement ce que vos règles désignent. Il ne détecte rien de lui-même\u00a0: relisez le résultat avant de le partager.",
+    legal: "Mentions légales",
+    source: "Source",
+  },
+  legal: {
+    title: "Mentions légales et confidentialité — Innomi",
+  },
+};
+
+export const messages: Record<Locale, Messages> = { en, fr };
