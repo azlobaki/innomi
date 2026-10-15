@@ -351,7 +351,8 @@ try {
   await page("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
 
   // Legal notice.
-  // French first (the saved language), then English (nothing saved).
+  // French first (saved setting), then English from cleared storage: the
+  // English-pinned browser alone decides.
   await load(base);
   await evaluate(`localStorage.setItem("innomi.settings.v1", '{"locale":"fr"}')`);
   await load(`${base}mentions-legales`);
@@ -365,7 +366,7 @@ try {
   ]) {
     check(legalFr.includes(want), `legal notice (fr) misses "${want}"`);
   }
-  await evaluate(`localStorage.removeItem("innomi.settings.v1")`);
+  await evaluate("localStorage.clear()");
   await load(`${base}mentions-legales`);
   const legal = await evaluate("document.body.innerText");
   for (const want of [
@@ -403,10 +404,11 @@ try {
   await wait(1500);
   const frLang = await evaluate("document.documentElement.lang");
   check(frLang === "fr", `French browser: <html lang> is "${frLang}"`);
-  // textContent: innerText would show the CSS-uppercased labels.
-  const frText = await evaluate("document.body.textContent");
+  // Visible text only (a page still hidden must fail); innerText follows
+  // CSS text-transform, so compare in lower case.
+  const frText = await evaluate("document.body.innerText.toLowerCase()");
   for (const want of ["Appliquer", "Texte d’origine"]) {
-    check(frText.includes(want), `French browser: the page does not show "${want}"`);
+    check(frText.includes(want.toLowerCase()), `French browser: the page does not show "${want}"`);
   }
   const frStored = await evaluate("localStorage.length");
   check(frStored === 0, `French browser: a first visit wrote ${frStored} localStorage key(s)`);
@@ -422,6 +424,7 @@ try {
   await screenshot("desktop-fr.png");
   await viewport(390, 844);
   await load(base);
+  check((await evaluate("document.documentElement.lang")) === "fr", "saved French at 390 px: <html lang> is not fr");
   await fillUp("390 px, French");
   await evaluate(`document.getElementById("input").scrollIntoView(), true`);
   await wait(100);
