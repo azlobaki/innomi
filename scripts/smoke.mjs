@@ -8,7 +8,10 @@
 // - Apply, Live preview or "Add rule" leaving the window, with a long rule list
 //   or a long text, at desktop and phone width;
 // - the keyboard flow (Enter adds a rule, Ctrl+Enter applies) breaking;
-// - the legal notice losing its key statements.
+// - the legal notice losing its key statements;
+// - the interface not following the browser's language (English pinned, French
+//   checked on a first visit and with the saved setting), or the language
+//   switch storing anything but the language.
 // Screenshots land in .smoke/. Set CHROME to override the browser binary.
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -56,7 +59,7 @@ async function launch() {
   const proc = spawn(
     process.env.CHROME ?? "chromium",
     [
-      "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-extensions",
+      "--headless=new", "--lang=en-US", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-extensions",
       // Ubuntu 24.04 CI runners forbid the unprivileged user namespaces Chrome's
       // sandbox needs; the pages loaded here are our own build.
       ...(process.env.CI ? ["--no-sandbox"] : []),
@@ -193,6 +196,15 @@ try {
     }
   });
 
+  // The app follows the browser's language, and this machine is French: pin
+  // English for every pass except the French ones, which switch it on purpose.
+  const { userAgent } = await cdp.send("Browser.getVersion");
+  const pinLanguage = async (locale, acceptLanguage) => {
+    await page("Emulation.setLocaleOverride", { locale });
+    await page("Emulation.setUserAgentOverride", { userAgent, acceptLanguage });
+  };
+  await pinLanguage("en-US", "en-US,en");
+
   const evaluate = async (expression) => {
     const result = await page("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
     if (result.exceptionDetails) {
@@ -315,6 +327,21 @@ try {
   check(stored.includes("PERSON_2"), "the saved template does not hold its rules");
   check(!stored.includes(SENTINEL), "the pasted text reached localStorage");
 
+  // The FR | EN switch stores the language, and only the language.
+  await evaluate(`document.getElementById("locale-fr").click(), true`);
+  await wait(200);
+  const switchedKeys = await evaluate("Object.keys(localStorage).sort()");
+  check(
+    JSON.stringify(switchedKeys) === JSON.stringify(["innomi.settings.v1", STORAGE_KEY]),
+    `using the language switch left ${JSON.stringify(switchedKeys)}`,
+  );
+  const settings = await evaluate(`localStorage.getItem("innomi.settings.v1")`);
+  check(settings === '{"locale":"fr"}', `the language setting is ${settings}`);
+  const afterSwitch = (settings ?? "") + (await evaluate(`localStorage.getItem(${JSON.stringify(STORAGE_KEY)}) ?? ""`));
+  check(!afterSwitch.includes(SENTINEL), "the pasted text reached localStorage after the language switch");
+  await evaluate(`document.getElementById("locale-en").click(), true`);
+  await wait(200);
+
   // Dark scheme: same layout, its own colours.
   await page("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
   await wait(100);
@@ -367,6 +394,40 @@ try {
   check((await evaluate("__overflow()")).x <= 0, "390 px, page bottom: horizontal scrolling");
   await load(`${base}mentions-legales`);
   check((await evaluate("__overflow()")).x <= 0, "390 px, legal notice: horizontal scrolling");
+
+  // French: a first visit from a French browser follows it and stores nothing.
+  await pinLanguage("fr-FR", "fr-FR,fr");
+  await load(base);
+  await evaluate("localStorage.clear()");
+  await load(base);
+  await wait(1500);
+  const frLang = await evaluate("document.documentElement.lang");
+  check(frLang === "fr", `French browser: <html lang> is "${frLang}"`);
+  // textContent: innerText would show the CSS-uppercased labels.
+  const frText = await evaluate("document.body.textContent");
+  for (const want of ["Appliquer", "Texte d’origine"]) {
+    check(frText.includes(want), `French browser: the page does not show "${want}"`);
+  }
+  const frStored = await evaluate("localStorage.length");
+  check(frStored === 0, `French browser: a first visit wrote ${frStored} localStorage key(s)`);
+  await pinLanguage("en-US", "en-US,en");
+
+  // French layout: the language saved, then the same checks as in English.
+  await evaluate(`localStorage.setItem("innomi.settings.v1", '{"locale":"fr"}')`);
+  await viewport(1440, 900);
+  await load(base);
+  check((await evaluate("document.documentElement.lang")) === "fr", "saved French: <html lang> is not fr");
+  await fillUp("1440 px, French");
+  await checkLayout("1440 px, French", { fitsWindow: true });
+  await screenshot("desktop-fr.png");
+  await viewport(390, 844);
+  await load(base);
+  await fillUp("390 px, French");
+  await evaluate(`document.getElementById("input").scrollIntoView(), true`);
+  await wait(100);
+  await checkLayout("390 px, French, at the text", { fitsWindow: false });
+  await screenshot("phone-fr.png");
+  await evaluate("localStorage.clear()");
 } finally {
   cdp.close();
   // Chromium keeps writing its profile until it has exited.
