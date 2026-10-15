@@ -5,7 +5,6 @@ import { SETTINGS_KEY } from "@/lib/settings";
 import { STORAGE_KEY } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "Mentions légales et confidentialité — Innomi",
   description: "Éditeur, hébergeur, limites de l'outil et données personnelles.",
 };
 
@@ -95,7 +94,7 @@ export default function LegalNotice() {
               nulle part ailleurs. <span className={DATA}>{STORAGE_KEY}</span> contient les modèles de règles que vous
               avez enregistrés ; <span className={DATA}>{SETTINGS_KEY}</span> contient uniquement la langue de
               l&apos;interface, écrite seulement si vous utilisez le sélecteur FR | EN. Aucun texte n&apos;est jamais
-              stocké, et rien n&apos;est écrit tant que vous n&apos;enregistrez pas de modèle ni ne changez de langue.
+              stocké, et rien n&apos;est écrit tant que vous n&apos;enregistrez pas de modèle ni n&apos;utilisez le sélecteur FR | EN.
               Attention : le « texte à rechercher » d&apos;une règle est souvent la donnée sensible elle-même ; toute
               personne ayant accès à ce navigateur peut la lire. Vous pouvez supprimer un modèle depuis l&apos;application,
               ou tous en effaçant les données du site dans votre navigateur. Le site ne dépose aucun cookie et
@@ -106,7 +105,7 @@ export default function LegalNotice() {
               (adresse IP, date, page demandée, navigateur) pour assurer le fonctionnement et la sécurité du service.
               Ces données sont traitées par Vercel Inc., dont les serveurs peuvent se trouver hors de l&apos;Union
               européenne ; Vercel adhère au cadre de protection des données UE–États-Unis (Data Privacy Framework).
-              L&apos;éditeur n&apos;exploite pas ces journaux. Elles ne contiennent jamais le texte que vous traitez.
+              L&apos;éditeur n&apos;exploite pas ces journaux. Ils ne contiennent jamais le texte que vous traitez.
             </p>
             <p className={PARAGRAPH}>
               <strong>Vos droits.</strong> Vous pouvez exercer vos droits d&apos;accès, de rectification,
@@ -197,8 +196,8 @@ export default function LegalNotice() {
               <strong>Local storage.</strong> Two keys may exist in your browser&apos;s local storage, and nowhere else.{" "}
               <span className={DATA}>{STORAGE_KEY}</span> holds the rule templates you have saved;{" "}
               <span className={DATA}>{SETTINGS_KEY}</span> holds only the interface language, written only if you use the
-              FR | EN switch. No text is ever stored, and nothing is written until you save a template or change the
-              language. Be careful: the &ldquo;text to find&rdquo; of a rule is often the sensitive data itself; anyone
+              FR | EN switch. No text is ever stored, and nothing is written until you save a template or use the
+              FR | EN switch. Be careful: the &ldquo;text to find&rdquo; of a rule is often the sensitive data itself; anyone
               with access to this browser can read it. You can delete a template from the application, or all of them by
               clearing the site&apos;s data in your browser. The site sets no cookies and uses no audience measurement or
               advertising trackers.

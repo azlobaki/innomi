@@ -61,6 +61,7 @@ const en = {
   },
   highlight: {
     deleted: "deleted",
+    quote: (s: string) => `“${s}”`,
   },
   footer: {
     disclaimer:
@@ -106,7 +107,7 @@ const fr: Messages = {
     add: "+ Ajouter une règle",
     addTitle: "Ajouter une règle (Entrée dans le dernier remplacement fait de même)",
     find: "Texte à rechercher",
-    replacePlaceholder: "Remplacement (laisser vide pour supprimer l’occurrence)",
+    replacePlaceholder: "Remplacement (vide = suppression)",
     replaceLabel: "Texte de remplacement",
     caseOn: "Respecte la casse — cliquer pour l’ignorer",
     caseOff: "Ignore la casse — cliquer pour la respecter",
@@ -136,6 +137,7 @@ const fr: Messages = {
   },
   highlight: {
     deleted: "supprimé",
+    quote: (s: string) => `«\u00a0${s}\u00a0»`,
   },
   footer: {
     disclaimer:

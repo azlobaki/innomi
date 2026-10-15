@@ -141,7 +141,7 @@ export default function RulesPanel({
             type="button"
             onClick={onClearRules}
             disabled={rules.length === 0}
-            className={`${BUTTON_DANGER} ml-auto`}
+            className={`${BUTTON_DANGER} ml-auto whitespace-nowrap`}
           >
             {t.rules.clearAll}
           </button>
@@ -150,7 +150,7 @@ export default function RulesPanel({
             type="button"
             onClick={handleAdd}
             title={t.rules.addTitle}
-            className={BUTTON}
+            className={`${BUTTON} whitespace-nowrap`}
           >
             {t.rules.add}
           </button>

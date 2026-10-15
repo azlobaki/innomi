@@ -41,7 +41,7 @@ Don't take the list above on faith:
   template or use the FR | EN switch, then holds at most those two keys.
 - Turn off your Wi-Fi and reload. The app keeps working.
 - Read [src/app/page.tsx](src/app/page.tsx) — the whole state of the app is under
-  200 lines.
+  about 200 lines.
 
 ## What it does
 
@@ -118,7 +118,9 @@ The page *Mentions légales et confidentialité* (`/mentions-legales`, linked fr
 every page's footer) gives the publisher and host as French law requires, the
 privacy notice, and the tool's limits: Innomi only replaces what your rules
 name, so its output is not anonymised in the GDPR sense until a human has read
-it. If you deploy your own copy, edit
+it. The page also has an English translation, shown when the interface is in
+English (the footer link then reads "Legal notice"); the French text is the
+legally binding one. If you deploy your own copy, edit
 [src/app/mentions-legales/page.tsx](src/app/mentions-legales/page.tsx) with your
 own details.
 

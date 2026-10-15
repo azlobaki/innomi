@@ -354,8 +354,15 @@ try {
   // French first (saved setting), then English from cleared storage: the
   // English-pinned browser alone decides.
   await load(base);
+  const enTitle = await evaluate("document.title");
+  check(enTitle === "Innomi — text anonymizer", `English load: document.title is "${enTitle}"`);
   await evaluate(`localStorage.setItem("innomi.settings.v1", '{"locale":"fr"}')`);
   await load(`${base}mentions-legales`);
+  const legalFrTitle = await evaluate("document.title");
+  check(
+    legalFrTitle === "Mentions légales et confidentialité — Innomi",
+    `legal notice (fr): document.title is "${legalFrTitle}"`,
+  );
   const legalFr = await evaluate("document.body.innerText");
   for (const want of [
     "Vercel Inc.",
@@ -368,6 +375,11 @@ try {
   }
   await evaluate("localStorage.clear()");
   await load(`${base}mentions-legales`);
+  const legalEnTitle = await evaluate("document.title");
+  check(
+    legalEnTitle === "Legal notice and privacy — Innomi",
+    `legal notice (en): document.title is "${legalEnTitle}"`,
+  );
   const legal = await evaluate("document.body.innerText");
   for (const want of [
     "Vercel Inc.",
@@ -410,6 +422,8 @@ try {
   for (const want of ["Appliquer", "Texte d’origine"]) {
     check(frText.includes(want.toLowerCase()), `French browser: the page does not show "${want}"`);
   }
+  const frTitle = await evaluate("document.title");
+  check(frTitle === "Innomi — anonymiseur de texte", `French browser: document.title is "${frTitle}"`);
   const frStored = await evaluate("localStorage.length");
   check(frStored === 0, `French browser: a first visit wrote ${frStored} localStorage key(s)`);
   await pinLanguage("en-US", "en-US,en");
@@ -422,6 +436,12 @@ try {
   await fillUp("1440 px, French");
   await checkLayout("1440 px, French", { fitsWindow: true });
   await screenshot("desktop-fr.png");
+  await viewport(1024, 768);
+  await load(base);
+  await fillUp("1024 px, French");
+  await checkLayout("1024 px, French", { fitsWindow: true });
+  const addRuleHeight = await evaluate(`document.getElementById("add-rule").getBoundingClientRect().height`);
+  check(addRuleHeight <= 32, `1024 px, French: the rules toolbar wraps (#add-rule is ${Math.round(addRuleHeight)} px tall)`);
   await viewport(390, 844);
   await load(base);
   check((await evaluate("document.documentElement.lang")) === "fr", "saved French at 390 px: <html lang> is not fr");

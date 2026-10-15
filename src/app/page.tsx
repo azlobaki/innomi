@@ -20,9 +20,6 @@ export default function Home() {
   const { locale, setLocale } = useSettings();
   // This component owns the provider, so it reads its own strings directly.
   const t = messages[locale].page;
-  useEffect(() => {
-    document.title = t.title;
-  }, [t.title]);
   const [templates, setTemplates] = useLocalStorage<Template[]>(
     STORAGE_KEY,
     [],
@@ -152,6 +149,7 @@ export default function Home() {
 
   return (
     <LocaleProvider locale={locale}>
+      <title>{t.title}</title>
       <div data-localised className="contents">
         {/* On wide screens the app is exactly one window tall: the rules and both
             texts scroll inside their own panels, so the controls never move away. */}

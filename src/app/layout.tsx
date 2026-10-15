@@ -18,7 +18,6 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Innomi — text anonymizer",
   description:
     "Scrub sensitive strings out of pasted text using reusable templates. Everything runs in your browser: no text is ever sent anywhere or stored.",
 };
