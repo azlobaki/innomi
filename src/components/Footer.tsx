@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/i18n/LocaleContext";
 import { LABEL } from "./ui";
 
 /**
@@ -8,16 +11,16 @@ import { LABEL } from "./ui";
 const SOURCE_URL: string = "https://github.com/azlobaki/innomi";
 
 export default function Footer() {
+  const t = useT().footer;
   return (
     <footer className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-rule bg-paper px-4 py-2">
       <p className="text-xs text-muted">
-        Innomi only replaces what your rules name. It finds nothing on its own:
-        read the result before you share it.
+        {t.disclaimer}
       </p>
       <span className="flex gap-4">
         {/* A plain link: Next's <Link> would prefetch, which the page's CSP forbids. */}
         <a className={`${LABEL} underline hover:text-ink`} href="/mentions-legales">
-          Mentions légales
+          {t.legal}
         </a>
         {SOURCE_URL && (
           <a
@@ -26,7 +29,7 @@ export default function Footer() {
             target="_blank"
             rel="noreferrer"
           >
-            Source
+            {t.source}
           </a>
         )}
       </span>

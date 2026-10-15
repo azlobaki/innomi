@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useT } from "@/i18n/LocaleContext";
 import type { Rule, Template } from "@/lib/types";
 import { BUTTON, BUTTON_DANGER, FIELD, LABEL } from "./ui";
 
@@ -39,6 +40,7 @@ export default function RulesPanel({
   onRemoveRule,
   onClearRules,
 }: Props) {
+  const t = useT();
   const listRef = useRef<HTMLUListElement>(null);
   // The rule to focus once it shows up in the list.
   const focusRef = useRef<{ id: string; field: "find" | "replace" } | null>(null);
@@ -78,16 +80,16 @@ export default function RulesPanel({
   return (
     <aside className="flex w-full shrink-0 flex-col border-rule bg-panel max-lg:border-b lg:w-[min(34vw,420px)] lg:min-w-[340px] lg:border-r">
       <section className="border-b border-hairline px-4 py-3">
-        <h2 className={LABEL}>Templates</h2>
+        <h2 className={LABEL}>{t.templates.heading}</h2>
         <div className="mt-2 flex gap-1">
           <select
-            aria-label="Load a template"
+            aria-label={t.templates.load}
             className={`${FIELD} cursor-pointer`}
             value={selectedTemplateId}
             onChange={(event) => onSelectTemplate(event.target.value)}
           >
             <option value="">
-              {templates.length ? "Load a template…" : "No saved templates"}
+              {templates.length ? t.templates.loadPlaceholder : t.templates.none}
             </option>
             {templates.map((template) => (
               <option key={template.id} value={template.id}>
@@ -99,17 +101,17 @@ export default function RulesPanel({
             type="button"
             onClick={onDeleteTemplate}
             disabled={!selectedTemplateId}
-            title="Delete the selected template"
+            title={t.templates.deleteTitle}
             className={BUTTON_DANGER}
           >
-            Delete
+            {t.templates.delete}
           </button>
         </div>
         <div className="mt-1 flex gap-1">
           <input
             className={FIELD}
-            placeholder="Template name (e.g. HR data)"
-            aria-label="Template name"
+            placeholder={t.templates.namePlaceholder}
+            aria-label={t.templates.nameLabel}
             value={templateName}
             onChange={(event) => onTemplateNameChange(event.target.value)}
             onKeyDown={(event) => {
@@ -122,7 +124,7 @@ export default function RulesPanel({
             disabled={!trimmedName}
             className={BUTTON}
           >
-            {overwrites ? "Update" : "Save"}
+            {overwrites ? t.templates.update : t.templates.save}
           </button>
         </div>
       </section>
@@ -130,9 +132,9 @@ export default function RulesPanel({
       <section className="flex min-h-0 flex-1 flex-col">
         <div className="flex items-center gap-2 border-b border-hairline px-4 py-2">
           <h2 className={LABEL}>
-            Rules{" "}
+            {t.rules.heading}{" "}
             <span className="normal-case tracking-normal text-faint">
-              · {activeRules} active
+              {t.rules.active(activeRules)}
             </span>
           </h2>
           <button
@@ -141,16 +143,16 @@ export default function RulesPanel({
             disabled={rules.length === 0}
             className={`${BUTTON_DANGER} ml-auto`}
           >
-            Clear all
+            {t.rules.clearAll}
           </button>
           <button
             id="add-rule"
             type="button"
             onClick={handleAdd}
-            title="Add a rule (Enter in the last replacement does the same)"
+            title={t.rules.addTitle}
             className={BUTTON}
           >
-            + Add rule
+            {t.rules.add}
           </button>
         </div>
 
@@ -173,8 +175,8 @@ export default function RulesPanel({
                   </span>
                   <input
                     className={FIELD}
-                    placeholder="Text to find"
-                    aria-label="Text to find"
+                    placeholder={t.rules.find}
+                    aria-label={t.rules.find}
                     spellCheck={false}
                     data-rule={rule.id}
                     data-field="find"
@@ -193,8 +195,8 @@ export default function RulesPanel({
                     aria-pressed={rule.caseSensitive}
                     title={
                       rule.caseSensitive
-                        ? "Case-sensitive — click to ignore case"
-                        : "Case-insensitive — click to match case"
+                        ? t.rules.caseOn
+                        : t.rules.caseOff
                     }
                     onClick={() =>
                       onRuleChange(rule.id, { caseSensitive: !rule.caseSensitive })
@@ -206,13 +208,13 @@ export default function RulesPanel({
                     }`}
                   >
                     Aa
-                    <span className="sr-only">Match case</span>
+                    <span className="sr-only">{t.rules.matchCase}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => onRemoveRule(rule.id)}
-                    title="Delete rule"
-                    aria-label="Delete rule"
+                    title={t.rules.delete}
+                    aria-label={t.rules.delete}
                     className={`${ICON_BUTTON} border-hairline bg-field text-base leading-none text-faint hover:border-cut hover:bg-cut hover:text-paper`}
                   >
                     ×
@@ -227,8 +229,8 @@ export default function RulesPanel({
                   </span>
                   <input
                     className={FIELD}
-                    placeholder="Replacement (empty deletes the match)"
-                    aria-label="Replacement text"
+                    placeholder={t.rules.replacePlaceholder}
+                    aria-label={t.rules.replaceLabel}
                     spellCheck={false}
                     data-rule={rule.id}
                     data-field="replace"
@@ -247,7 +249,7 @@ export default function RulesPanel({
                     className={`w-[3.75rem] shrink-0 text-right font-mono text-xs tabular-nums ${
                       hits > 0 ? "text-ink" : "text-faint"
                     }`}
-                    title={`${hits} occurrence${hits === 1 ? "" : "s"} replaced`}
+                    title={t.rules.occurrences(hits)}
                   >
                     {rule.find ? `×${hits}` : ""}
                   </span>
@@ -257,7 +259,7 @@ export default function RulesPanel({
           })}
           {rules.length === 0 && (
             <li className="px-4 py-6 text-center text-sm text-muted">
-              No rules yet. Add one, or load a template.
+              {t.rules.empty}
             </li>
           )}
         </ul>

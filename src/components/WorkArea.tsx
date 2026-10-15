@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n/LocaleContext";
 import Highlight, { MAX_PIECES, TEXT_LAYER_CLASS } from "./Highlight";
 import { BUTTON, BUTTON_PRIMARY, LABEL } from "./ui";
 import type { Piece } from "@/lib/anonymize";
@@ -41,6 +42,7 @@ export default function WorkArea({
   onLiveChange,
   onApply,
 }: Props) {
+  const t = useT().work;
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -94,8 +96,8 @@ export default function WorkArea({
   }
 
   let status = "";
-  if (live) status = "Live preview: recomputed on every keystroke";
-  else if (stale) status = "Pending changes — apply to update the result";
+  if (live) status = t.statusLive;
+  else if (stale) status = t.statusStale;
 
   return (
     <main className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -109,10 +111,10 @@ export default function WorkArea({
           type="button"
           onClick={onApply}
           disabled={live}
-          title={live ? "Live preview is on" : "Ctrl / Cmd + Enter"}
+          title={live ? t.applyLive : t.applyHint}
           className={`${BUTTON_PRIMARY} px-5 py-1.5 text-sm`}
         >
-          Apply{" "}
+          {t.apply}{" "}
           <kbd className="ml-2 font-mono text-[11px] font-normal opacity-60">
             Ctrl+↵
           </kbd>
@@ -125,13 +127,13 @@ export default function WorkArea({
           onClick={() => onLiveChange(!live)}
           className={`${BUTTON} py-1.5 aria-checked:border-ink aria-checked:bg-ink aria-checked:text-paper`}
         >
-          Live preview: {live ? "on" : "off"}
+          {t.live(live)}
         </button>
         <p className="min-w-0 text-xs text-muted" aria-live="polite">
           {status}
         </p>
         <p className="ml-auto font-mono text-xs tabular-nums text-muted">
-          {total} replacement{total === 1 ? "" : "s"}
+          {t.replacements(total)}
         </p>
       </div>
 
@@ -139,14 +141,14 @@ export default function WorkArea({
         <section className={panelClass} aria-labelledby="original-label">
           <div className={headerClass}>
             <h2 id="original-label" className={LABEL}>
-              Original text
+              {t.original}
             </h2>
             <div className="flex items-center gap-1">
               <span className="mr-1 font-mono text-[11px] tabular-nums text-faint">
-                {input.length.toLocaleString("en-US")} chars
+                {t.chars(input.length)}
               </span>
               <button type="button" onClick={handlePaste} className={BUTTON}>
-                Paste
+                {t.paste}
               </button>
               <button
                 type="button"
@@ -154,7 +156,7 @@ export default function WorkArea({
                 disabled={!input}
                 className={BUTTON}
               >
-                Clear
+                {t.clear}
               </button>
             </div>
           </div>
@@ -182,7 +184,7 @@ export default function WorkArea({
               aria-labelledby="original-label"
               className={`${TEXT_LAYER_CLASS} relative block h-full w-full resize-none bg-transparent text-ink placeholder:text-faint focus:outline-none`}
               spellCheck={false}
-              placeholder="Paste the text to anonymize here…"
+              placeholder={t.inputPlaceholder}
               value={input}
               onChange={(event) => onInputChange(event.target.value)}
               onScroll={(event) => {
@@ -197,10 +199,10 @@ export default function WorkArea({
         <section className={panelClass} aria-labelledby="output-label">
           <div className={headerClass}>
             <h2 id="output-label" className={LABEL}>
-              Anonymized text
+              {t.anonymized}
               {highlightingOff && (
                 <span className="ml-2 normal-case tracking-normal text-faint">
-                  highlighting off (text too large)
+                  {t.highlightingOff}
                 </span>
               )}
             </h2>
@@ -210,7 +212,7 @@ export default function WorkArea({
               disabled={!output}
               className={`${BUTTON} ${copied ? "border-ink bg-ink text-paper" : ""}`}
             >
-              {copied ? "Copied" : "Copy"}
+              {copied ? t.copied : t.copy}
             </button>
           </div>
           <div
@@ -220,7 +222,7 @@ export default function WorkArea({
           >
             {outputPieces.length === 0 ? (
               <span className="text-faint">
-                The anonymized text will appear here.
+                {t.outputPlaceholder}
               </span>
             ) : outputHighlights ? (
               <Highlight

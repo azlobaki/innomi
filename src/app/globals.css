@@ -95,3 +95,8 @@
 .scrollbar-ghost::-webkit-scrollbar-thumb {
   background: transparent;
 }
+
+/* A French visitor sees the prerendered English page only until the app has applied French. */
+html[lang="fr"]:not([data-locale-ready]) [data-localised] {
+  visibility: hidden;
+}
