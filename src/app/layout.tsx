@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { PAGE_CSP } from "@/lib/csp";
+import { BOOT_SCRIPT } from "@/lib/settings";
 import "./globals.css";
 
 // Self-hosted by next/font: downloaded once at build time, never at runtime.
@@ -30,12 +31,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <head>
         {process.env.NODE_ENV === "production" && (
           <meta httpEquiv="Content-Security-Policy" content={PAGE_CSP} />
         )}
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col bg-paper font-sans text-ink">
         {children}
