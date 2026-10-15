@@ -324,8 +324,11 @@ try {
   await page("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
 
   // Legal notice.
+  // French first (the saved language), then English (nothing saved).
+  await load(base);
+  await evaluate(`localStorage.setItem("innomi.settings.v1", '{"locale":"fr"}')`);
   await load(`${base}mentions-legales`);
-  const legal = await evaluate("document.body.innerText");
+  const legalFr = await evaluate("document.body.innerText");
   for (const want of [
     "Vercel Inc.",
     "contact.azlobaki@pm.me",
@@ -333,9 +336,21 @@ try {
     STORAGE_KEY,
     "https://github.com/azlobaki/innomi",
   ]) {
-    check(legal.includes(want), `legal notice misses "${want}"`);
+    check(legalFr.includes(want), `legal notice (fr) misses "${want}"`);
+  }
+  await evaluate(`localStorage.removeItem("innomi.settings.v1")`);
+  await load(`${base}mentions-legales`);
+  const legal = await evaluate("document.body.innerText");
+  for (const want of [
+    "Vercel Inc.",
+    "contact.azlobaki@pm.me",
+    "the French text is the legally binding one",
+    "innomi.settings.v1",
+  ]) {
+    check(legal.includes(want), `legal notice (en) misses "${want}"`);
   }
   await screenshot("desktop-legal.png");
+  await evaluate("localStorage.clear()");
 
   // Phone: the page scrolls, but never sideways, and the actions stay at hand.
   await viewport(390, 844);

@@ -68,6 +68,9 @@ const en = {
     legal: "Legal notice",
     source: "Source",
   },
+  legal: {
+    title: "Legal notice and privacy — Innomi",
+  },
 };
 
 export type Messages = typeof en;
@@ -139,6 +142,9 @@ const fr: Messages = {
       "Innomi remplace uniquement ce que vos règles désignent. Il ne détecte rien de lui-même\u00a0: relisez le résultat avant de le partager.",
     legal: "Mentions légales",
     source: "Source",
+  },
+  legal: {
+    title: "Mentions légales et confidentialité — Innomi",
   },
 };
 
