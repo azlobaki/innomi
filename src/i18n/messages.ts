@@ -79,10 +79,10 @@ const fr: Messages = {
   page: {
     title: "Innomi — anonymiseur de texte",
     tagline: "Anonymisation de texte par modèles",
-    claim: "Local uniquement · aucun texte n’est envoyé ni conservé",
-    confirmReplace: (name: string) => `Remplacer le modèle « ${name} » ?`,
-    confirmDelete: (name: string) => `Supprimer le modèle « ${name} » ?`,
-    confirmClear: "Effacer toutes les règles actuelles ?",
+    claim: "Local uniquement · aucun texte n’est envoyé ni conservé",
+    confirmReplace: (name: string) => `Remplacer le modèle «\u00a0${name}\u00a0»\u00a0?`,
+    confirmDelete: (name: string) => `Supprimer le modèle «\u00a0${name}\u00a0»\u00a0?`,
+    confirmClear: "Effacer toutes les règles actuelles\u00a0?",
   },
   templates: {
     heading: "Modèles",
@@ -103,7 +103,7 @@ const fr: Messages = {
     add: "+ Ajouter une règle",
     addTitle: "Ajouter une règle (Entrée dans le dernier remplacement fait de même)",
     find: "Texte à rechercher",
-    replacePlaceholder: "Remplacement (vide, il supprime l’occurrence)",
+    replacePlaceholder: "Remplacement (laisser vide pour supprimer l’occurrence)",
     replaceLabel: "Texte de remplacement",
     caseOn: "Respecte la casse — cliquer pour l’ignorer",
     caseOff: "Ignore la casse — cliquer pour la respecter",
@@ -116,8 +116,8 @@ const fr: Messages = {
     apply: "Appliquer",
     applyLive: "L’aperçu en direct est activé",
     applyHint: "Ctrl / Cmd + Entrée",
-    live: (on: boolean) => `Aperçu en direct : ${on ? "activé" : "désactivé"}`,
-    statusLive: "Aperçu en direct : recalculé à chaque frappe",
+    live: (on: boolean) => `Aperçu en direct\u00a0: ${on ? "activé" : "désactivé"}`,
+    statusLive: "Aperçu en direct\u00a0: recalculé à chaque frappe",
     statusStale: "Modifications en attente — appliquez pour mettre à jour le résultat",
     replacements: (n: number) => `${n} remplacement${n > 1 ? "s" : ""}`,
     original: "Texte d’origine",
@@ -136,7 +136,7 @@ const fr: Messages = {
   },
   footer: {
     disclaimer:
-      "Innomi remplace uniquement ce que vos règles désignent. Il ne détecte rien de lui-même : relisez le résultat avant de le partager.",
+      "Innomi remplace uniquement ce que vos règles désignent. Il ne détecte rien de lui-même\u00a0: relisez le résultat avant de le partager.",
     legal: "Mentions légales",
     source: "Source",
   },

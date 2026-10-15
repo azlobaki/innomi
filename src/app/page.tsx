@@ -152,55 +152,55 @@ export default function Home() {
 
   return (
     <LocaleProvider locale={locale}>
-    <div data-localised className="contents">
-    {/* On wide screens the app is exactly one window tall: the rules and both
-        texts scroll inside their own panels, so the controls never move away. */}
-    <div className="flex min-h-dvh flex-col lg:h-dvh lg:min-h-0">
-      <header className={HEADER}>
-        <h1 className={WORDMARK}>Innomi</h1>
-        <p className="text-sm text-muted">{t.tagline}</p>
-        <p className={`${LABEL} sm:ml-auto`}>
-          {t.claim}
-        </p>
-        <LocaleSwitch locale={locale} onChange={setLocale} />
-      </header>
+      <div data-localised className="contents">
+        {/* On wide screens the app is exactly one window tall: the rules and both
+            texts scroll inside their own panels, so the controls never move away. */}
+        <div className="flex min-h-dvh flex-col lg:h-dvh lg:min-h-0">
+          <header className={HEADER}>
+            <h1 className={WORDMARK}>Innomi</h1>
+            <p className="text-sm text-muted">{t.tagline}</p>
+            <p className={`${LABEL} sm:ml-auto`}>
+              {t.claim}
+            </p>
+            <LocaleSwitch locale={locale} onChange={setLocale} />
+          </header>
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <RulesPanel
-          rules={rules}
-          counts={result.counts}
-          templates={sortedTemplates}
-          selectedTemplateId={selectedTemplateId}
-          templateName={templateName}
-          onSelectTemplate={handleSelectTemplate}
-          onDeleteTemplate={handleDeleteTemplate}
-          onSaveTemplate={handleSaveTemplate}
-          onTemplateNameChange={setTemplateName}
-          onRuleChange={handleRuleChange}
-          onAddRule={handleAddRule}
-          onRemoveRule={(id) =>
-            setRules((previous) => previous.filter((rule) => rule.id !== id))
-          }
-          onClearRules={handleClearRules}
-        />
-        <WorkArea
-          input={input}
-          output={result.output}
-          sourcePieces={sourcePieces}
-          outputPieces={result.outputPieces}
-          rulesById={rulesById}
-          total={result.total}
-          live={live}
-          stale={stale}
-          onInputChange={setInput}
-          onLiveChange={handleLiveChange}
-          onApply={handleApply}
-        />
+          <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+            <RulesPanel
+              rules={rules}
+              counts={result.counts}
+              templates={sortedTemplates}
+              selectedTemplateId={selectedTemplateId}
+              templateName={templateName}
+              onSelectTemplate={handleSelectTemplate}
+              onDeleteTemplate={handleDeleteTemplate}
+              onSaveTemplate={handleSaveTemplate}
+              onTemplateNameChange={setTemplateName}
+              onRuleChange={handleRuleChange}
+              onAddRule={handleAddRule}
+              onRemoveRule={(id) =>
+                setRules((previous) => previous.filter((rule) => rule.id !== id))
+              }
+              onClearRules={handleClearRules}
+            />
+            <WorkArea
+              input={input}
+              output={result.output}
+              sourcePieces={sourcePieces}
+              outputPieces={result.outputPieces}
+              rulesById={rulesById}
+              total={result.total}
+              live={live}
+              stale={stale}
+              onInputChange={setInput}
+              onLiveChange={handleLiveChange}
+              onApply={handleApply}
+            />
+          </div>
+
+          <Footer />
+        </div>
       </div>
-
-      <Footer />
-    </div>
-    </div>
     </LocaleProvider>
   );
 }
